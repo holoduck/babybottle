@@ -11,6 +11,7 @@
     <title>Baby Milk Temperature Calculator</title>
 </head>
 <body style="background:AliceBlue">
+
     <h1 style="color:blue;text-align:center;margin:1em">Baby Milk Temperature Calculator</h1>
     <div class="container">
 
@@ -21,7 +22,7 @@
                     <div class="input-group-prepend">
                         <span class="input-group-text" id="basic-addon1">Target Temperature</span>
                     </div>
-                    <input id="targetTemperature" value="40.0" type="number" class="form-control" placeholder="40.0" aria-label="40.0" aria-describedby="basic-addon1">
+                    <input id="targetTemperature" value="40" type="number" class="form-control" placeholder="40.0" aria-label="40.0" aria-describedby="basic-addon1">
                     <div class="input-group-append">
                         <span class="input-group-text">°C</span>
                     </div>
@@ -62,11 +63,11 @@
             <div class="col-md">
 
                 <div class="mb-3">
-                    <button type="button" class="btn btn-primary btn-block" onclick="myFunction()">Calculate</button>
+                    <button type="button" class="btn btn-primary btn-block" onclick="calculateQuantity()">Calculate</button>
                 </div>
 
                 <div class="mb-3">
-                    <div id="result" class="alert alert-success" style="display:none" role="alert">
+                    <div id="result" class="alert " style="display:none" role="alert">
                         Here will be shown how to mix the water to get the right temperature.
                     </div>
                 </div>
@@ -84,7 +85,7 @@
                         <ul>
                             <li>
                                 Although this calculator is based on a formula of phisics, it
-                            DOES NOT CONSTITUTE a medical advise nor is intended to be a substitute for professional judgment or advice.
+                                DOES NOT CONSTITUTE a medical advise nor is intended to be a substitute for professional judgment or advice.
                             </li>
                             <li>
                                 This website does not collect any personal data.
@@ -100,21 +101,81 @@
     <!-- a comment -->
 
     <script>
-        function myFunction() {
-            const c = parseInt(document.getElementById("warmerTemperature").value);
-            // console.log(typeof c);
-            const f = parseInt(document.getElementById("coolerTemperature").value);
-            const tt = parseInt(document.getElementById("targetTemperature").value);
-            const qt = parseInt(document.getElementById("targetQuantity").value);
-            const y = Math.round((tt - c) * qt / (f - c));
-            const x = qt - y;
-            const fraction = Math.round((tt - c) / (f - tt));
-            const totFraction = fraction + 1;
+        function calculateQuantity() {
+            const targetInput = getTargetInputs();
+            const isValidInput = validationAndMessages(targetInput);
+            if (isValidInput) {
+                setAlertBox(targetInput);
+            }
+        }
+
+        function getTargetInputs() {
+            return {
+                "c": parseInt(document.getElementById("warmerTemperature").value),
+                "f" : parseInt(document.getElementById("coolerTemperature").value),
+                "tt" : parseInt(document.getElementById("targetTemperature").value),
+                "qt" : parseInt(document.getElementById("targetQuantity").value)
+            };
+        }
+
+        function validationAndMessages(targetInput) {
+            var errMex = "";
+
+            Object.keys(targetInput).map(key => targetInput[key]).forEach(value => {
+                if (isNaN(value)) {
+                    errMex = "All inputs must be integer numbers";
+                }
+            });
+
+            if (targetInput.qt === 0) {
+                errMex = "It seems we don't need any water.. Try a higher target milk quantity!";
+            }
+            if (targetInput.tt < targetInput.f) {
+                errMex = "We need colder water than " + targetInput.f + " °C to reach " + targetInput.tt + " °C";
+            }
+            if (targetInput.tt === targetInput.f) {
+                errMex = "The cooler water has the desired target temperature! Just use it!";
+            }
+            if (targetInput.tt > targetInput.c) {
+                errMex = "We need warmer water than " + targetInput.c + " °C to reach " + targetInput.tt + " °C";
+            }
+            if (targetInput.tt === targetInput.c) {
+                errMex = "The warmer water has the desired target temperature! Just use it!";
+            }
+
+            if (errMex != "") {
+                setBox(errMex, "alert-danger");
+                return false;
+            }
+
+            return true;
+        }
+
+        function validateThatInputsAreNumbers(targetInput) {
+
+            return "";
+        }
+
+        function setBox(mex, alertType) {
+            const alertTypes = ["alert-success", "alert-danger"];
             const resultElement = document.getElementById("result");
-            const partOrParts = (fraction === 1) ? "part" : "parts";
-            resultElement.innerHTML = "<p>Use " + y + "ml of cooler water and " + x  + "ml of warmer water </p><p> This is roughly " + fraction + " " + partOrParts + " of cooler water every  1 part of warmer water (I.e. warmer water must be 1 /" + totFraction + " of the total)</p>";
+            resultElement.innerHTML = mex;
+            alertTypes.forEach(
+            aType => resultElement.classList.remove(aType)
+            );
+            resultElement.classList.add(alertType);
             resultElement.style.display = "block";
             resultElement.scrollIntoView({behavior: 'smooth' });
+        }
+
+        function setAlertBox(targetInput) {
+            const y = Math.round((targetInput.tt - targetInput.c) * targetInput.qt / (targetInput.f - targetInput.c));
+            const x = targetInput.qt - y;
+            const fraction = Math.round((targetInput.tt - targetInput.c) / (targetInput.f - targetInput.tt));
+            const totFraction = fraction + 1;
+            const partOrParts = (fraction === 1) ? "part" : "parts";
+            const mex = "<p>Use " + y + "ml of cooler water and " + x  + "ml of warmer water </p><p> This is roughly " + fraction + " " + partOrParts + " of cooler water every  1 part of warmer water (i.e. warmer water must be 1 /" + totFraction + " of the total)</p>";
+            setBox(mex, "alert-success");
         }
     </script>
 
