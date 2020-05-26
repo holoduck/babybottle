@@ -111,7 +111,8 @@
             const fraction = Math.round((tt - c) / (f - tt));
             const totFraction = fraction + 1;
             const resultElement = document.getElementById("result");
-            resultElement.innerHTML = "<p>Use " + y + "ml of cooler water and " + x  + "ml of warmer water </p><p> This is roughly " + fraction + " parts of cooler water every  1 part of warmer water (I.e. warmer water must be 1 /" + totFraction + " of the total)</p>";
+            const partOrParts = (fraction === 1) ? "part" : "parts";
+            resultElement.innerHTML = "<p>Use " + y + "ml of cooler water and " + x  + "ml of warmer water </p><p> This is roughly " + fraction + " " + partOrParts + " of cooler water every  1 part of warmer water (I.e. warmer water must be 1 /" + totFraction + " of the total)</p>";
             resultElement.style.display = "block";
             resultElement.scrollIntoView({behavior: 'smooth' });
         }
